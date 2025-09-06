@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  userdb:
+    image: mysql:8
+    container_name: userdb-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: userdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: app123
+    ports:
+      - "3307:3306"  # Host 3307 → Container 3306
+    volumes:
+      - userdb_data:/var/lib/mysql
+
+  userservice:
+    build: .
+    container_name: user-service
+    depends_on:
+      - userdb
+    ports:
+      - "8081:8081"   # Host 8081 → Container 8081
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://userdb:3306/userdb
+      SPRING_DATASOURCE_USERNAME: appuser
+      SPRING_DATASOURCE_PASSWORD: app123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+volumes:
+  userdb_data:
